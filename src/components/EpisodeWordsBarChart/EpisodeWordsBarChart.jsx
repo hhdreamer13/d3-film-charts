@@ -6,7 +6,7 @@ const height = 400;
 const margin = { top: 20, right: 5, bottom: 20, left: 35 };
 
 const EpisodeWordsBarChart = ({ data }) => {
-  let svgRef = useRef(null);
+  const svgRef = useRef(null);
   const xAxisRef = useRef(null);
   const yAxisRef = useRef(null);
 
@@ -33,7 +33,6 @@ const EpisodeWordsBarChart = ({ data }) => {
     .domain([0, Math.max(...yDomain)])
     .range([height - margin.bottom, 0]);
 
-  const t = d3.transition().duration(1000);
   const barWidth = (width - (margin.left + margin.right)) / data.length;
 
   const draw = () => {
@@ -54,18 +53,30 @@ const EpisodeWordsBarChart = ({ data }) => {
 
             return rect;
           },
-          (update) => update,
+          (update) => {
+            update
+              .attr("stroke", "white") // Temporarily change the stroke color
+              .attr("stroke-width", 4) // Increase the stroke width
+              .transition()
+              .duration(1000) // 1 second transition
+              .attr("stroke", "black") // Revert the stroke color to black
+              .attr("stroke-width", 2); // Revert the stroke width to 2
+
+            return update;
+          },
           (exit) => {
             exit
-              .transition(t)
+              .transition()
+              .duration(1000)
               // everything after here is transition TO
               .attr("y", height - margin.bottom)
-              .attr("height", 0)
+              // .attr("height", 0)
               .remove();
           }
         )
         .attr("width", xScale.bandwidth())
-        .transition(t)
+        .transition()
+        .duration(1000)
         .attr("x", (d) => xScale(d.id))
         .attr("y", (d) => yScale(d.words))
         .attr("height", (d) => height - margin.bottom - yScale(d.words))
@@ -80,7 +91,8 @@ const EpisodeWordsBarChart = ({ data }) => {
     if (xAxisRef.current) {
       const xAxis = d3.axisBottom(xScale);
       d3.select(xAxisRef.current)
-        .transition(t)
+        .transition()
+        .duration(1000)
         .call(xAxis)
         .selectAll("text")
         .attr("transform", "rotate(90)")
@@ -92,21 +104,17 @@ const EpisodeWordsBarChart = ({ data }) => {
 
     if (yAxisRef.current) {
       const yAxis = d3.axisLeft(yScale);
-      d3.select(yAxisRef.current).transition(t).call(yAxis);
+      d3.select(yAxisRef.current).transition().duration(1000).call(yAxis);
     }
-  }, [xScale, yScale, t]);
+  }, [xScale, yScale]);
 
   //create elements (but without anything special)
   // const bars = filteredData.map((d) => <rect key={d.id} />);
 
   return (
-    <svg className="" width={width} height={height} ref={svgRef}>
+    <svg width={width} height={height} ref={svgRef}>
       {/* {bars} */}
-      <g
-        className=""
-        ref={xAxisRef}
-        transform={`translate(0, ${height - margin.bottom})`}
-      />
+      <g ref={xAxisRef} transform={`translate(0, ${height - margin.bottom})`} />
       <g ref={yAxisRef} transform={`translate(${margin.left}, 0)`} />
     </svg>
   );

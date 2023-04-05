@@ -22,8 +22,8 @@ function App() {
       <button className="btn-ghost btn my-20" onClick={handleChange}>
         Change Season: {season}
       </button>
-      <TitleWordsBarChart data={films} />
       <EpisodeWordsBarChart data={films} />
+      <TitleWordsBarChart data={films} />
     </div>
   );
 }

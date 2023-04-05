@@ -34,9 +34,7 @@ const TitleWordsBarChart = ({ data }) => {
     .domain(yDomain)
     .range([height - margin.bottom, margin.top]);
 
-  const t = d3.transition().duration(1000);
   const barHeight = (height - margin.top) / data.length;
-  console.log(barHeight);
 
   const draw = () => {
     //grab elements and style/position
@@ -57,10 +55,16 @@ const TitleWordsBarChart = ({ data }) => {
           },
           (update) => update,
           (exit) => {
-            exit.transition(t).attr("y", barHeight).attr("height", 0).remove();
+            exit
+              .transition()
+              .duration(1000)
+              .attr("y", barHeight)
+              .attr("height", 0)
+              .remove();
           }
         )
-        .transition(t)
+        .transition()
+        .duration(1000)
         .attr("x", margin.left)
         .attr("y", (d) => yScale(d.title))
         .attr("height", yScale.bandwidth())
@@ -75,14 +79,14 @@ const TitleWordsBarChart = ({ data }) => {
   useEffect(() => {
     if (xAxisRef.current) {
       const xAxis = d3.axisBottom(xScale);
-      d3.select(xAxisRef.current).transition(t).call(xAxis);
+      d3.select(xAxisRef.current).transition().duration(1000).call(xAxis);
     }
 
     if (yAxisRef.current) {
       const yAxis = d3.axisLeft(yScale);
-      d3.select(yAxisRef.current).transition(t).call(yAxis);
+      d3.select(yAxisRef.current).transition().duration(1000).call(yAxis);
     }
-  }, [xScale, yScale, t]);
+  }, [xScale, yScale]);
 
   //create elements (but without anything special)
   // const bars = filteredData.map((d) => <rect key={d.id} />);
