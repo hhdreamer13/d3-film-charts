@@ -2,6 +2,7 @@ import { useState } from "react";
 import data from "./utils/poanimaDataset.json";
 import EpisodeWordsBarChart from "./components/EpisodeWordsBarChart/EpisodeWordsBarChart";
 import TitleWordsBarChart from "./components/TitleWordsBarChart/TitleWordsBarChart";
+import SchoolTechnique from "./components/SchoolTechnique/SchoolTechnique";
 
 let filteredData = data;
 
@@ -22,8 +23,9 @@ function App() {
       <button className="btn-ghost btn my-20" onClick={handleChange}>
         Change Season: {season}
       </button>
-      <EpisodeWordsBarChart data={films} />
-      <TitleWordsBarChart data={films} />
+      <SchoolTechnique data={films} />
+      {/* <EpisodeWordsBarChart data={films} /> */}
+      {/* <TitleWordsBarChart data={films} /> */}
     </div>
   );
 }
