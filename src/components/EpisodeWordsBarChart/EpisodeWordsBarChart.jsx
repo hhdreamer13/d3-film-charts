@@ -1,14 +1,18 @@
+import React, { useRef, useEffect, useCallback, useState } from "react";
 import * as d3 from "d3";
-import React, { useRef, useEffect } from "react";
+import _ from "lodash";
 
 const width = 800;
-const height = 400;
+const height = 450;
 const margin = { top: 20, right: 5, bottom: 20, left: 35 };
 
-const EpisodeWordsBarChart = ({ data }) => {
+const EpisodeWordsBarChart = ({ data: films }) => {
   const svgRef = useRef(null);
   const xAxisRef = useRef(null);
   const yAxisRef = useRef(null);
+  const tooltipRef = useRef(null);
+
+  const [data, setData] = useState(films);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => draw(), [data]);
@@ -21,7 +25,7 @@ const EpisodeWordsBarChart = ({ data }) => {
 
   // set domains on the scales
   const xDomain = data.map((d) => d.id);
-  const yDomain = d3.extent(data, (d) => d.words + 30);
+  const yDomain = d3.extent(data, (d) => d.words + 40);
 
   // create scales
   const xScale = d3
@@ -53,24 +57,15 @@ const EpisodeWordsBarChart = ({ data }) => {
 
             return rect;
           },
-          (update) => {
-            update
-              .attr("stroke", "white") // Temporarily change the stroke color
-              .attr("stroke-width", 4) // Increase the stroke width
-              .transition()
-              .duration(1000) // 1 second transition
-              .attr("stroke", "black") // Revert the stroke color to black
-              .attr("stroke-width", 2); // Revert the stroke width to 2
+          (update) => update,
 
-            return update;
-          },
           (exit) => {
             exit
               .transition()
               .duration(1000)
               // everything after here is transition TO
               .attr("y", height - margin.bottom)
-              // .attr("height", 0)
+              .attr("height", 0)
               .remove();
           }
         )
@@ -83,6 +78,12 @@ const EpisodeWordsBarChart = ({ data }) => {
         .style("fill", (d) => colorScale(d.words))
         .attr("stroke", "black")
         .attr("stroke-width", 2);
+
+      d3.select(svgRef.current)
+        .selectAll("rect")
+        .on("mouseover", handleMouseOver)
+        .on("mousemove", handleMouseMove)
+        .on("mouseleave", handleMouseLeave);
     }
   };
 
@@ -100,6 +101,11 @@ const EpisodeWordsBarChart = ({ data }) => {
         .style("font-size", "5px")
         .attr("dx", "4em")
         .attr("dy", "-1.5em");
+
+      // d3.select(xAxisRef.current)
+      //   .call(xAxis)
+      //   .select(".domain")
+      //   .style("stroke", "none");
     }
 
     if (yAxisRef.current) {
@@ -108,15 +114,72 @@ const EpisodeWordsBarChart = ({ data }) => {
     }
   }, [xScale, yScale]);
 
-  //create elements (but without anything special)
-  // const bars = filteredData.map((d) => <rect key={d.id} />);
+  // Tooltip
+  const updateTooltip = (event, d) => {
+    const xOffset = 10; // Adjust the offset to your preference
+    const yOffset = -height + 10;
+
+    const [pointerX, pointerY] = d3.pointer(event, svgRef.current);
+
+    const tooltipX = pointerX + xOffset;
+    const tooltipY = pointerY + yOffset;
+
+    tooltipRef.current.style.opacity = 1;
+    tooltipRef.current.style.transform = `translate(${tooltipX}px, ${tooltipY}px)`;
+    tooltipRef.current.textContent = `Titre: ${d.title}
+        Réalisateur: ${d.director}
+        Saison: ${d.season}, Episode: ${d.episode}
+        Mots: ${d.words}`;
+  };
+
+  const handleMouseOver = useCallback((event, d) => {
+    updateTooltip(event, d);
+  }, []);
+
+  const handleMouseMove = useCallback((event, d) => {
+    updateTooltip(event, d);
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    tooltipRef.current.style.opacity = 0;
+  }, []);
 
   return (
-    <svg width={width} height={height} ref={svgRef}>
-      {/* {bars} */}
-      <g ref={xAxisRef} transform={`translate(0, ${height - margin.bottom})`} />
-      <g ref={yAxisRef} transform={`translate(${margin.left}, 0)`} />
-    </svg>
+    <div>
+      <div className="my-10 flex w-full justify-around">
+        <button
+          onClick={() => setData(_.sortBy(data, (d) => d.words))}
+          className="btn-outline btn-sm btn normal-case"
+        >
+          Ascending
+        </button>
+        <button
+          onClick={() => setData(films)}
+          className="btn-outline btn-sm btn normal-case"
+        >
+          Reset
+        </button>
+        <button
+          onClick={() => setData(_.sortBy(data, (d) => d.words).reverse())}
+          className="btn-outline btn-sm btn normal-case"
+        >
+          Descending
+        </button>
+      </div>
+
+      <svg width={width} height={height} ref={svgRef}>
+        {/* {bars} */}
+        <g
+          ref={xAxisRef}
+          transform={`translate(0, ${height - margin.bottom})`}
+        />
+        <g ref={yAxisRef} transform={`translate(${margin.left}, 0)`} />
+      </svg>
+      <div
+        ref={tooltipRef}
+        className="absolute w-40 whitespace-pre-line rounded-md border border-slate-900 bg-white p-1 text-xs opacity-0 shadow-lg"
+      ></div>
+    </div>
   );
 };
 

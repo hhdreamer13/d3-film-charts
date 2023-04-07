@@ -26,7 +26,7 @@ const colorRange = [
   "#FF4081",
 ];
 
-const SchoolTechnique = ({ data }) => {
+const SeasonSchoolHeatmap = ({ data }) => {
   // a utility function to extract colors from d3
   // eslint-disable-next-line no-unused-vars
   function d3ColorExtractor(colorFormat, number) {
@@ -34,7 +34,7 @@ const SchoolTechnique = ({ data }) => {
       .scaleSequential(colorFormat)
       .domain([0, number]);
 
-    const arrayColors = Array.from({ length: 18 }, (_, i) =>
+    const arrayColors = Array.from({ length: number }, (_, i) =>
       colorScaleExtract(i)
     );
     return arrayColors;
@@ -87,13 +87,13 @@ const SchoolTechnique = ({ data }) => {
 
   // Tooltip
   const updateTooltip = (event, d) => {
-    const xOffset = 10; // Adjust the offset to your preference
-    const yOffset = 10;
+    const xOffset = 15; // Adjust the offset to your preference
+    const yOffset = 15;
 
-    const svgRect = svgRef.current.getBoundingClientRect();
+    const [pointerX, pointerY] = d3.pointer(event, svgRef.current);
 
-    const tooltipX = event.clientX - svgRect.left + xOffset;
-    const tooltipY = event.clientY - svgRect.top + yOffset;
+    const tooltipX = pointerX + xOffset;
+    const tooltipY = pointerY + yOffset;
 
     tooltipRef.current.style.opacity = 1;
     tooltipRef.current.style.transform = `translate(${tooltipX}px, ${tooltipY}px)`;
@@ -104,6 +104,7 @@ const SchoolTechnique = ({ data }) => {
   };
 
   const handleMouseOver = useCallback((event, d) => {
+    d3.select(event.target).style("stroke", "black");
     updateTooltip(event, d);
   }, []);
 
@@ -116,6 +117,7 @@ const SchoolTechnique = ({ data }) => {
   );
 
   const handleMouseLeave = useCallback(() => {
+    d3.select(event.target).style("stroke", "none");
     tooltipRef.current.style.opacity = 0;
   }, []);
 
@@ -139,7 +141,6 @@ const SchoolTechnique = ({ data }) => {
         })
         .style("stroke-width", 4)
         .style("stroke", "none")
-        .style("opacity", 0.8)
         .on("mouseover", handleMouseOver)
         .on("mousemove", handleMouseMove)
         .on("mouseleave", handleMouseLeave);
@@ -151,27 +152,30 @@ const SchoolTechnique = ({ data }) => {
     if (xAxisRef.current) {
       const xAxis = d3.axisBottom(xScale);
       d3.select(xAxisRef.current)
-        .call(xAxis)
+        .call(xAxis.tickSize(0))
         .select(".domain") // select the axis line
-        .style("stroke", "none"); // hide the axis line
+        .remove();
 
       d3.select(xAxisRef.current)
         .selectAll(".tick text")
         .attr("text-anchor", "center")
         .text((d) => `E ${d}`)
+        .style("font-size", 12)
         .style("font-weight", "bold");
     }
     if (yAxisRef.current) {
       const yAxis = d3.axisLeft(yScale);
       d3.select(yAxisRef.current)
-        .call(yAxis)
+        .call(yAxis.tickSize(0))
         .select(".domain")
-        .style("stroke", "none");
+        .remove();
+      // .style("stroke", "none");
 
       d3.select(yAxisRef.current)
         .selectAll(".tick text")
         .attr("text-anchor", "center")
         .text((d) => `S ${d}`)
+        .style("font-size", 12)
         .style("font-weight", "bold");
     }
   });
@@ -183,7 +187,6 @@ const SchoolTechnique = ({ data }) => {
     <div className="flex">
       <svg ref={svgRef} width={width} height={height}>
         <g
-          className=""
           ref={xAxisRef}
           transform={`translate(0, ${height - margin.bottom})`}
         />
@@ -191,10 +194,9 @@ const SchoolTechnique = ({ data }) => {
       </svg>
       <div
         ref={tooltipRef}
-        className="absolute w-40 whitespace-pre-line rounded-md border border-gray-300 bg-white p-1 text-xs opacity-0 shadow"
-        style={{ pointerEvents: "none" }}
+        className="absolute w-40 whitespace-pre-line rounded-md border border-slate-900 bg-white p-1 text-xs opacity-0 shadow-lg"
       ></div>
-      <div className="">
+      <div className="mt-1">
         {sortedSchools.map((d) => (
           <div key={d}>
             <span
@@ -211,4 +213,4 @@ const SchoolTechnique = ({ data }) => {
   );
 };
 
-export default SchoolTechnique;
+export default SeasonSchoolHeatmap;

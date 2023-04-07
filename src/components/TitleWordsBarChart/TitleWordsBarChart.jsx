@@ -2,7 +2,7 @@ import * as d3 from "d3";
 import React, { useRef, useEffect } from "react";
 
 const width = 800;
-const height = 400;
+const height = 1000;
 const margin = { top: 20, right: 5, bottom: 20, left: 250 };
 
 const TitleWordsBarChart = ({ data }) => {

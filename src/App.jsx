@@ -1,8 +1,8 @@
 import { useState } from "react";
 import data from "./utils/poanimaDataset.json";
 import EpisodeWordsBarChart from "./components/EpisodeWordsBarChart/EpisodeWordsBarChart";
-import TitleWordsBarChart from "./components/TitleWordsBarChart/TitleWordsBarChart";
-import SchoolTechnique from "./components/SchoolTechnique/SchoolTechnique";
+import SeasonSchoolHeatmap from "./components/SeasonSchoolHeatmap/SeasonSchoolHeatmap";
+import TitleWordsRadial from "./components/TitleWordsRadial/TitleWordsRadial";
 
 let filteredData = data;
 
@@ -17,15 +17,20 @@ function App() {
   };
 
   return (
-    <div className="my-20 flex min-h-screen w-screen flex-col items-center">
-      <h1>New React Project</h1>
-      <p>React + Vite + Tailwind</p>
-      <button className="btn-ghost btn my-20" onClick={handleChange}>
+    <div className="my-10 flex min-h-screen w-screen flex-col items-center">
+      <h1>Data visualization</h1>
+      <button className="btn-ghost btn my-10" onClick={handleChange}>
         Change Season: {season}
       </button>
-      <SchoolTechnique data={films} />
-      {/* <EpisodeWordsBarChart data={films} /> */}
-      {/* <TitleWordsBarChart data={films} /> */}
+      <div className="mb-20">
+        <TitleWordsRadial data={data} />
+      </div>
+      <div className="mb-20">
+        <SeasonSchoolHeatmap data={data} />
+      </div>
+      <div className="">
+        <EpisodeWordsBarChart data={films} />
+      </div>
     </div>
   );
 }
