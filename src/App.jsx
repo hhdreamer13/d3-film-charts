@@ -2,8 +2,9 @@ import { useState } from "react";
 import data from "./utils/poanimaDataset.json";
 import EpisodeWordsBarChart from "./components/EpisodeWordsBarChart/EpisodeWordsBarChart";
 import SeasonSchoolHeatmap from "./components/SeasonSchoolHeatmap/SeasonSchoolHeatmap";
-import TitleWordsRadial from "./components/TitleWordsRadial/TitleWordsRadial";
+// import TitleWordsRadial from "./components/TitleWordsRadial/TitleWordsRadial";
 import SeasonTechniqueHeatmap from "./components/SeasonTechniqueHeatmap/SeasonTechniqueHeatmap";
+import TitleWordsRadialAnimated from "./components/TitleWordsRadial/TitleWordsRadialAnimated";
 
 let filteredData = data;
 
@@ -24,7 +25,7 @@ function App() {
         Change Season: {season}
       </button>
       <div className="mb-20">
-        <TitleWordsRadial data={data} />
+        <TitleWordsRadialAnimated data={data} />
       </div>
       <div className="mb-20">
         <SeasonTechniqueHeatmap data={data} />

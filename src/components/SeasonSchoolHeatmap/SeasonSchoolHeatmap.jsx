@@ -27,19 +27,6 @@ const colorRange = [
 ];
 
 const SeasonSchoolHeatmap = ({ data }) => {
-  // a utility function to extract colors from d3
-  // eslint-disable-next-line no-unused-vars
-  function d3ColorExtractor(colorFormat, number) {
-    const colorScaleExtract = d3
-      .scaleSequential(colorFormat)
-      .domain([0, number]);
-
-    const arrayColors = Array.from({ length: number }, (_, i) =>
-      colorScaleExtract(i)
-    );
-    return arrayColors;
-  }
-
   const svgRef = useRef(null);
   const xAxisRef = useRef(null);
   const yAxisRef = useRef(null);
@@ -51,15 +38,6 @@ const SeasonSchoolHeatmap = ({ data }) => {
 
   const schools = _.uniqBy(data, "school").map((film) => film.school);
   const schoolCounts = _.countBy(data, "school");
-  const schoolsWithCounts = schools.map((school) => {
-    return {
-      name: school,
-      count: schoolCounts[school] || 0,
-    };
-  });
-
-  schoolsWithCounts.sort((a, b) => b.count - a.count);
-  const sortedSchools = schoolsWithCounts.map((school) => school.name);
 
   // create scales
   const xScale = d3
@@ -75,15 +53,16 @@ const SeasonSchoolHeatmap = ({ data }) => {
     .padding(0.1);
 
   // create color palette
-  const colorScale = d3.scaleOrdinal().domain(schools).range(colorRange);
 
-  const schoolObj = sortedSchools.map((school) => {
+  const schoolObj = schools.map((school, i) => {
     return {
-      school: school,
-      record: schoolCounts[school] || 0,
-      color: colorScale(school),
+      name: school,
+      count: schoolCounts[school] || 0,
+      color: colorRange[i],
     };
   });
+
+  schoolObj.sort((a, b) => b.count - a.count);
 
   // Tooltip
   const updateTooltip = (event, d) => {
@@ -133,12 +112,10 @@ const SeasonSchoolHeatmap = ({ data }) => {
         .attr("ry", 4)
         .attr("width", xScale.bandwidth())
         .attr("height", yScale.bandwidth())
-        .attr("fill", (d) => {
-          const filteredFilm = schoolObj.find(
-            (film) => film.school === d.school
-          ); // find is more optimal than filter, because it stops iterating, and here I just want the name of the school
-          return filteredFilm.color;
-        })
+        .attr(
+          "fill",
+          (d) => schoolObj.find((school) => school.name === d.school).color
+        )
         .style("stroke-width", 4)
         .style("stroke", "none")
         .on("mouseover", handleMouseOver)
@@ -197,15 +174,15 @@ const SeasonSchoolHeatmap = ({ data }) => {
         className="absolute w-40 whitespace-pre-line rounded-md border border-slate-900 bg-white p-1 text-xs opacity-0 shadow-lg"
       ></div>
       <div className="mt-1">
-        {sortedSchools.map((d) => (
-          <div key={d}>
+        {schoolObj.map((school) => (
+          <div key={school.name}>
             <span
               className={"mr-1 inline-block h-3 w-3 rounded-xl"}
               style={{
-                backgroundColor: colorScale(d),
+                backgroundColor: school.color,
               }}
             ></span>
-            {d}
+            {school.name}
           </div>
         ))}
       </div>
