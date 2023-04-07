@@ -3,6 +3,7 @@ import data from "./utils/poanimaDataset.json";
 import EpisodeWordsBarChart from "./components/EpisodeWordsBarChart/EpisodeWordsBarChart";
 import SeasonSchoolHeatmap from "./components/SeasonSchoolHeatmap/SeasonSchoolHeatmap";
 import TitleWordsRadial from "./components/TitleWordsRadial/TitleWordsRadial";
+import SeasonTechniqueHeatmap from "./components/SeasonTechniqueHeatmap/SeasonTechniqueHeatmap";
 
 let filteredData = data;
 
@@ -24,6 +25,9 @@ function App() {
       </button>
       <div className="mb-20">
         <TitleWordsRadial data={data} />
+      </div>
+      <div className="mb-20">
+        <SeasonTechniqueHeatmap data={data} />
       </div>
       <div className="mb-20">
         <SeasonSchoolHeatmap data={data} />

@@ -16,8 +16,8 @@ const TitleWordsRadial = ({ data }) => {
 
   // Color array based on techniques
   function d3ColorExtractor(colorFormat, number) {
-    const start = 0.1; // Adjust this value to change the starting point of the color range
-    const end = 1.0; // Adjust this value to change the end point of the color range
+    const start = 0.11; // Adjust this value to change the starting point of the color range
+    const end = 0.95; // Adjust this value to change the end point of the color range
 
     const colorScaleExtract = d3
       .scaleQuantize()
@@ -32,7 +32,7 @@ const TitleWordsRadial = ({ data }) => {
     return arrayColors;
   }
 
-  const colorRange = d3ColorExtractor(d3.interpolateMagma, 5);
+  const colorRange = d3ColorExtractor(d3.interpolateInferno, 5);
 
   const techniColor = techniques.map((technique, i) => {
     return {
@@ -116,6 +116,7 @@ const TitleWordsRadial = ({ data }) => {
         .attr("alignment-baseline", "middle");
     }
   };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => draw(), [filteredData]);
 
   return (
