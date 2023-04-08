@@ -6,15 +6,13 @@ import SeasonSchoolHeatmap from "./components/SeasonSchoolHeatmap/SeasonSchoolHe
 import SeasonTechniqueHeatmap from "./components/SeasonTechniqueHeatmap/SeasonTechniqueHeatmap";
 import TitleWordsRadialAnimated from "./components/TitleWordsRadial/TitleWordsRadialAnimated";
 
-let filteredData = data;
-
 function App() {
-  const [films, setFilms] = useState(filteredData);
+  const [films, setFilms] = useState(data.filter((d) => d.season === 1));
   const [season, setSeason] = useState(1);
 
   const handleChange = () => {
     const randomSeason = Math.floor(Math.random() * 10) + 1;
-    setFilms(filteredData.filter((d) => d.season === randomSeason));
+    setFilms(data.filter((d) => d.season === randomSeason));
     setSeason(randomSeason);
   };
 
@@ -25,7 +23,7 @@ function App() {
         Change Season: {season}
       </button>
       <div className="mb-20">
-        <TitleWordsRadialAnimated data={data} />
+        <TitleWordsRadialAnimated data={films} />
       </div>
       <div className="mb-20">
         <SeasonTechniqueHeatmap data={data} />
@@ -34,7 +32,7 @@ function App() {
         <SeasonSchoolHeatmap data={data} />
       </div>
       <div className="">
-        <EpisodeWordsBarChart data={films} />
+        <EpisodeWordsBarChart data={data} />
       </div>
     </div>
   );

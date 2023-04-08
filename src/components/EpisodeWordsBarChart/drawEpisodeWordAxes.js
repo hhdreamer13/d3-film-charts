@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 
-const updateEpisodeAxes = (xAxisRef, yAxisRef, xScale, yScale) => {
+const drawEpisodeWordAxes = (xAxisRef, yAxisRef, xScale, yScale) => {
   if (xAxisRef.current) {
     const xAxis = d3.axisBottom(xScale);
     d3.select(xAxisRef.current)
@@ -26,4 +26,4 @@ const updateEpisodeAxes = (xAxisRef, yAxisRef, xScale, yScale) => {
   }
 };
 
-export default updateEpisodeAxes;
+export default drawEpisodeWordAxes;
