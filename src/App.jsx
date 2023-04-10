@@ -2,9 +2,9 @@ import { useState } from "react";
 import data from "./utils/poanimaDataset.json";
 import EpisodeWordsBarChart from "./components/EpisodeWordsBarChart/EpisodeWordsBarChart";
 import SeasonSchoolHeatmap from "./components/SeasonSchoolHeatmap/SeasonSchoolHeatmap";
-// import TitleWordsRadial from "./components/TitleWordsRadial/TitleWordsRadial";
 import SeasonTechniqueHeatmap from "./components/SeasonTechniqueHeatmap/SeasonTechniqueHeatmap";
 import TitleWordsRadialAnimated from "./components/TitleWordsRadial/TitleWordsRadialAnimated";
+import FlowerAnimation from "./components/FlowerAnimation/FlowerAnimation";
 
 function App() {
   const [films, setFilms] = useState(data.filter((d) => d.season === 1));
@@ -22,6 +22,9 @@ function App() {
       <button className="btn-ghost btn my-10" onClick={handleChange}>
         Change Season: {season}
       </button>
+      <div className="mb-20">
+        <FlowerAnimation data={films} />
+      </div>
       <div className="mb-20">
         <TitleWordsRadialAnimated data={films} />
       </div>

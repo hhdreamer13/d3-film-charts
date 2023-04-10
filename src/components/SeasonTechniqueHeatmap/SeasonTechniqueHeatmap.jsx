@@ -5,7 +5,13 @@ import _, { throttle } from "lodash";
 const width = 600;
 const height = 450;
 const margin = { top: 5, right: 5, bottom: 20, left: 35 };
-// const colorRange = ["#3499e1", "#4334e1", "#c434e1", "#e1348a", "#34e1a8"];
+const technicolor = [
+  { technique: "Traditionnelle", color: "#1b0c41" },
+  { technique: "Numérique", color: "#721a6e" },
+  { technique: "Papiers découpés", color: "#c63d4d" },
+  { technique: "Volume", color: "#f8890c" },
+  { technique: "Variée", color: "#f1ef75" },
+];
 
 const SeasonTechniqueHeatmap = ({ data }) => {
   const svgRef = useRef(null);
@@ -18,33 +24,14 @@ const SeasonTechniqueHeatmap = ({ data }) => {
   const episodes = _.uniqBy(data, "episode").map((film) => film.episode);
   const techniques = _.uniqBy(data, "technique").map((film) => film.technique);
 
-  // Color array based on techniques
-  function d3ColorExtractor(colorFormat, number) {
-    const start = 0.11; // Adjust this value to change the starting point of the color range
-    const end = 0.95; // Adjust this value to change the end point of the color range
-
-    const colorScaleExtract = d3
-      .scaleQuantize()
-      .domain([0, number - 1])
-      .range(
-        d3.quantize((t) => colorFormat(start + t * (end - start)), number)
-      );
-
-    const arrayColors = Array.from({ length: number }, (_, i) =>
-      colorScaleExtract(i)
-    );
-    return arrayColors;
-  }
-  const colorRange = d3ColorExtractor(d3.interpolateInferno, 5); // change color here
-
   // Technique Objects
 
   const techniquesCounts = _.countBy(data, "technique");
-  const techniquesObj = techniques.map((technique, i) => {
+  const techniquesObj = techniques.map((technique) => {
     return {
       name: technique,
       count: techniquesCounts[technique] || 0,
-      color: colorRange[i],
+      color: technicolor.find((t) => t.technique === technique).color,
     };
   });
 

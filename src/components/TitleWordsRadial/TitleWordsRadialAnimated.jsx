@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback } from "react";
 import * as d3 from "d3";
-import { debounce, throttle } from "lodash";
+import { throttle } from "lodash";
 import d3ColorExtractor from "../../utils/d3ColorExtractor";
 import drawTitleWordsRadial from "./drawTitleWordsRadial";
 import radialTooltip from "./radialTooltip";
@@ -32,6 +32,8 @@ const TitleWordsRadialAnimated = ({ data: filteredData }) => {
       color: colorRange[i],
     };
   });
+
+  console.log(techniColor);
 
   // Create Domains
   const titles = filteredData.map((d) => d.title);
