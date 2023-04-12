@@ -5,6 +5,7 @@ import SeasonSchoolHeatmap from "./components/SeasonSchoolHeatmap/SeasonSchoolHe
 import SeasonTechniqueHeatmap from "./components/SeasonTechniqueHeatmap/SeasonTechniqueHeatmap";
 import TitleWordsRadialAnimated from "./components/TitleWordsRadial/TitleWordsRadialAnimated";
 import FlowerAnimation from "./components/FlowerAnimation/FlowerAnimation";
+import SchoolForce from "./components/SchoolForce/SchoolForce";
 
 function App() {
   const [films, setFilms] = useState(data.filter((d) => d.season === 1));
@@ -22,6 +23,9 @@ function App() {
       <button className="btn-ghost btn my-10" onClick={handleChange}>
         Change Season: {season}
       </button>
+      <div className="mb-20">
+        <SchoolForce data={data} />
+      </div>
       <div className="mb-20">
         <FlowerAnimation data={films} />
       </div>

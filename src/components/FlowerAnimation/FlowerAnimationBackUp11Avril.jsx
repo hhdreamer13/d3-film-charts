@@ -5,12 +5,11 @@ import _ from "lodash";
 const width = 800;
 // const height = 450;
 // const margin = { top: 5, right: 5, bottom: 20, left: 35 };
-const layout = [4, 5, 4]; // Represents rows of 3 films, 3, 3 and 4
 const animationObj = [
   {
     technique: "Traditionnelle",
     color: "#1b0c41",
-    path: `M5.38,.61c2.14,1.88,4.28,3.84,6.41,5.8,2.11,1.98,4.23,3.96,6.27,5.95,1.03,.99,2.04,1.98,3.02,2.97,.99,.99,1.97,1.96,2.92,2.94,3.8,3.88,7.26,7.62,10.14,10.9,2.88,3.28,5.2,6.11,6.78,8.13,.8,1,1.39,1.83,1.81,2.38,.41,.56,.62,.86,.62,.86,0,0-.31-.2-.9-.56-.58-.38-1.45-.91-2.51-1.62-2.14-1.43-5.13-3.52-8.62-6.14-3.49-2.63-7.47-5.79-11.63-9.28-1.05-.87-2.09-1.77-3.15-2.69-1.07-.91-2.13-1.84-3.19-2.79-2.15-1.88-4.27-3.84-6.41-5.8-2.11-1.98-4.23-3.96-6.26-5.96-.23-.22-.44-.44-.66-.66,1.72,13.55,7.72,49.84,24.07,64.99,37.09,34.38,33.93,10.25,46.98-3.82,13.04-14.07,37.35-12.75,.26-47.13C54.96,3.93,18.32,.69,4.67,0c.24,.2,.47,.4,.71,.61Z`,
+    path: "M0 0 C50 50 50 100 0 100 C-50 100 -50 50 0 0",
   },
   {
     technique: "Numérique",
@@ -35,36 +34,17 @@ const animationObj = [
 ];
 
 const pathWidth = 120;
-// const rowMargin = 100; // add margin between rows
-// const perRow = Math.floor(width / pathWidth);
+const rowMargin = 100; // add margin between rows
+const perRow = Math.floor(width / pathWidth);
 
-const calculateGridPos = (i, layout) => {
-  let rowIndex = 0;
-  let colIndex = i;
-  let numElementsPassed = 0;
-
-  while (colIndex >= layout[rowIndex]) {
-    // eslint-disable-next-line no-unused-vars
-    numElementsPassed += layout[rowIndex];
-    colIndex -= layout[rowIndex];
-    rowIndex++;
-  }
-
-  const topMargin = 20;
-  // const rightMargin = 20;
-  const interRowMargin = 100;
-  const interColMargin = 20;
-
-  // Calculate horizontal offset for centering each row
-  const rowWidth =
-    layout[rowIndex] * pathWidth + (layout[rowIndex] - 1) * interColMargin;
-  const horizontalOffset = (width - rowWidth) / 2;
-
+const calculateGridPos = (i) => {
+  const row = Math.floor(i / perRow);
+  const col = i % perRow;
+  const topMargin = 20; // Add top margin value here
+  const rightMargin = 20; // Add right margin value here
   return [
-    horizontalOffset + (colIndex + 0.5) * pathWidth + colIndex * interColMargin,
-    (rowIndex + 0.5) * pathWidth +
-      rowIndex * interRowMargin +
-      (rowIndex === 0 ? topMargin : 0),
+    (col + 0.5) * pathWidth + (col === perRow - 1 ? rightMargin : 0),
+    (row + 0.5) * pathWidth + row * rowMargin + (row === 0 ? topMargin : 0), // add margin between rows
   ];
 };
 
@@ -73,8 +53,9 @@ const calculateGridPos = (i, layout) => {
 const FlowerAnimation = ({ data }) => {
   const svgRef = useRef(null);
 
-  // eslint-disable-next-line no-unused-vars
-  const svgHeight = layout.reduce((sum, row) => sum + pathWidth + 100, 0);
+  const svgHeight =
+    (Math.ceil(data.length / perRow) + 0.5) * pathWidth +
+    Math.max(0, Math.ceil(data.length / perRow) - 1) * rowMargin;
 
   // calculate the scales
   const flowersObj = (data) => {
@@ -95,7 +76,7 @@ const FlowerAnimation = ({ data }) => {
         palette: d.palette, // Add this line to include the palette property
         // scale: petalScale(d.words),
         numPetals: numPetalScale(d.words),
-        translate: calculateGridPos(i, layout),
+        translate: calculateGridPos(i),
       };
     });
   };
@@ -110,7 +91,6 @@ const FlowerAnimation = ({ data }) => {
       // svg.selectAll("*").remove();
 
       // Add Gaussian blur filter
-      // eslint-disable-next-line no-unused-vars
       const filter = svg
         .append("defs")
         .append("filter")
@@ -118,7 +98,6 @@ const FlowerAnimation = ({ data }) => {
         .append("feGaussianBlur")
         .attr("stdDeviation", 2); // adjust the blur intensity by changing the stdDeviation value
 
-      // eslint-disable-next-line no-unused-vars
       const flowers = svg
         .selectAll("g")
         .data(flowersObj(data), (d) => d.id)
@@ -152,7 +131,7 @@ const FlowerAnimation = ({ data }) => {
               )
               .attr("r", circleRadius)
               .attr("fill", (d) => d.color)
-              .attr("fill-opacity", 0.4)
+              .attr("fill-opacity", 0.35)
               .attr("stroke", "none")
               .attr("filter", "url(#blur)"); // apply the blur filter
 
@@ -202,7 +181,22 @@ const FlowerAnimation = ({ data }) => {
           },
           (update) => update,
           (exit) => {
-            exit.transition().duration(1000).attr("opacity", 0).remove();
+            // exit
+            //   .selectAll(".background-circles")
+            //   .transition()
+            //   .duration(1000)
+            //   .attr("opacity", 0);
+            // exit
+            //   .selectAll("text")
+            //   .transition()
+            //   .duration(1000)
+            //   .attr("opacity", 0);
+            exit
+              .selectAll("*")
+              .transition()
+              .duration(1000)
+              .attr("opacity", 0)
+              .remove();
           }
         )
         .transition()
@@ -214,13 +208,12 @@ const FlowerAnimation = ({ data }) => {
 
   useEffect(() => {
     draw();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
   return (
     <div>
       <h1>Flower Animation</h1>
-      <div className={`flex overflow-y-auto overflow-x-hidden`}>
+      <div className={`max-h-[600px] overflow-y-auto overflow-x-hidden`}>
         <svg ref={svgRef} width={width} height={svgHeight}></svg>
       </div>
     </div>

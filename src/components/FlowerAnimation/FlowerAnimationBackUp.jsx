@@ -87,6 +87,7 @@ const FlowerAnimation = ({ data }) => {
       const svg = d3.select(svgRef.current);
 
       // Add Gaussian blur filter
+      // eslint-disable-next-line no-unused-vars
       const filter = svg
         .append("defs")
         .append("filter")

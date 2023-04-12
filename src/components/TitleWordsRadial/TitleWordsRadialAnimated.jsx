@@ -33,8 +33,6 @@ const TitleWordsRadialAnimated = ({ data: filteredData }) => {
     };
   });
 
-  console.log(techniColor);
-
   // Create Domains
   const titles = filteredData.map((d) => d.title);
   const words = filteredData.map((d) => d.words);
