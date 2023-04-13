@@ -202,8 +202,15 @@ const SchoolForce = ({ data }) => {
       }
 
       function dragged(event) {
-        event.subject.fx = event.x;
-        event.subject.fy = event.y;
+        if (event.type === "touchmove") {
+          // If this is a touch event, use the first touch point as the mouse position.
+          event.subject.fx = event.changedTouches[0].clientX;
+          event.subject.fy = event.changedTouches[0].clientY;
+        } else {
+          // Otherwise, use the mouse position.
+          event.subject.fx = event.x;
+          event.subject.fy = event.y;
+        }
       }
 
       function dragended(event) {
