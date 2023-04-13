@@ -202,15 +202,9 @@ const SchoolForce = ({ data }) => {
       }
 
       function dragged(event) {
-        if (event.type === "touchmove") {
-          // If this is a touch event, use the first touch point as the mouse position.
-          event.subject.fx = event.changedTouches[0].clientX;
-          event.subject.fy = event.changedTouches[0].clientY;
-        } else {
-          // Otherwise, use the mouse position.
-          event.subject.fx = event.x;
-          event.subject.fy = event.y;
-        }
+        const [x, y] = d3.pointer(event);
+        event.subject.fx = x;
+        event.subject.fy = y;
       }
 
       function dragended(event) {
@@ -221,6 +215,7 @@ const SchoolForce = ({ data }) => {
 
       return d3
         .drag()
+        .filter((event) => !event.ctrlKey) // Add this line to prevent pinch-zoom conflicts
         .on("start", dragstarted)
         .on("drag", dragged)
         .on("end", dragended);
