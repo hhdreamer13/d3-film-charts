@@ -1,15 +1,15 @@
-const Legend = ({ schoolObj }) => {
+const Legend = ({ obj }) => {
   return (
-    <div className="mt-1">
-      {schoolObj.map((school) => (
-        <div key={school.name}>
+    <div className="mt-2">
+      {obj.map((item) => (
+        <div key={item.name}>
           <span
             className={"mr-1 inline-block h-3 w-3 rounded-xl"}
             style={{
-              backgroundColor: school.color,
+              backgroundColor: item.color,
             }}
           ></span>
-          {school.name}
+          {item.name}
         </div>
       ))}
     </div>

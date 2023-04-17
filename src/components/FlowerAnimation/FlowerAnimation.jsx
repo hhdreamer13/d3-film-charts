@@ -105,20 +105,20 @@ const FlowerAnimation = ({ data }) => {
 
   // Tooltip
   const updateTooltip = schoolFlowerTooltip(tooltipRef, svgRef, 0, 0);
-  const throttledUpdateTooltip = throttle(updateTooltip, 1000);
+  // const throttledUpdateTooltip = throttle(updateTooltip, 1000);
 
   const handleMouseOver = useCallback(
     (event, d) => {
-      throttledUpdateTooltip(event, d);
+      updateTooltip(event, d);
     },
-    [throttledUpdateTooltip]
+    [updateTooltip]
   );
 
   const handleMouseMove = useCallback(
-    // (event, d) => {
-    //   throttledUpdateTooltip(event, d);
-    // },
-    []
+    (event, d) => {
+      updateTooltip(event, d);
+    },
+    [updateTooltip]
   );
 
   const handleMouseLeave = useCallback(() => {
@@ -182,7 +182,7 @@ const FlowerAnimation = ({ data }) => {
               )
               .attr("r", circleRadius)
               .attr("fill", (d) => d.color)
-              .attr("fill-opacity", 0.35)
+              .attr("fill-opacity", 0.5)
               .attr("stroke", "none")
               .attr("filter", "url(#blur)"); // apply the blur filter
 

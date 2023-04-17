@@ -6,25 +6,24 @@ import Legend from "../SeasonSchoolHeatmap/Legend";
 const width = 600;
 const height = 450;
 
-const colorRange = [
-  "#FF5733",
-  "#FFC300",
-  "#DAF7A6",
-  "#00CC99",
-  "#4C4CFF",
-  "#2F4F4F",
-  "#006064",
-  "#C51162",
-  "#FFD600",
-  "#FF6D00",
-  "#8BC34A",
-  "#AD1457",
-  "#A83E6C",
-  "#6200EA",
-  "#283593",
-  "#212121",
-  "#00838F",
-  "#FF4081",
+const schoColor = [
+  { name: "La Poudrière", color: "#FF5733" },
+  { name: "EMCA", color: "#FFC300" },
+  { name: "ENSAD", color: "#DAF7A6" },
+  { name: "Les Gobelins", color: "#4C4CFF" },
+  { name: "Atelier de Sèvres", color: "#00CC99" },
+  { name: "Rubika", color: "#454d66" },
+  { name: "L'Atelier", color: "#B39CD0" },
+  { name: "Émile Cohl", color: "#75448B" },
+  { name: "ESAAT", color: "#DAD873" },
+  { name: "Georges Méliès", color: "#FF6D00" },
+  { name: "Ste Geneviève", color: "#8BC34A" },
+  { name: "LISAA", color: "#AD1457" },
+  { name: "Marie-Curie", color: "#0098C9" },
+  { name: "Pivaut", color: "#6200EA" },
+  { name: "Estienne", color: "#283593" },
+  { name: "EESAB", color: "#A6A6A6" },
+  { name: "ECV Bordeaux", color: "#391C77" },
 ];
 
 const SchoolForce = ({ data }) => {
@@ -36,18 +35,24 @@ const SchoolForce = ({ data }) => {
     group: "school",
   }));
 
-  const colorScale = d3.scaleOrdinal().domain(schools).range(colorRange);
-
   const schoolsNames = _.uniqBy(data, "school").map((film) => film.school);
   const schoolCounts = _.countBy(data, "school");
 
-  const schoolObj = schoolsNames.map((school, i) => {
+  const schoolObj = schoolsNames.map((school) => {
     return {
       name: school,
       count: schoolCounts[school] || 0,
-      color: colorRange[i],
+      color: schoColor.find((s) => s.name === school).color,
     };
   });
+
+  schoolObj.sort((a, b) => b.count - a.count);
+
+  // Color Scale
+  const colorScale = d3
+    .scaleOrdinal()
+    .domain(schoolObj.map((s) => s.name))
+    .range(schoolObj.map((s) => s.color));
 
   const nodesData = data
     .map((d) => {
@@ -67,7 +72,6 @@ const SchoolForce = ({ data }) => {
   });
 
   const nodeFill = (d) => {
-    console.log("nodeFill input:", d);
     const schoolNode = schools.find((school) => school.id === d.id);
     return schoolNode ? colorScale(schoolNode.title) : "#";
   };
@@ -233,7 +237,7 @@ const SchoolForce = ({ data }) => {
     <div className="flex">
       <div ref={ref}></div>
       <div className="mt-1">
-        <Legend schoolObj={schoolObj} />
+        <Legend obj={schoolObj} />
       </div>
     </div>
   );

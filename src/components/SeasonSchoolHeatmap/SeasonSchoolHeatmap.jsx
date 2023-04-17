@@ -120,7 +120,7 @@ const SeasonSchoolHeatmap = ({ data }) => {
         className="absolute w-40 whitespace-pre-line rounded-md border border-slate-900 bg-white p-1 text-xs opacity-0 shadow-lg"
       ></div>
       <div className="mt-1">
-        <Legend schoolObj={schoolObj} />
+        <Legend obj={schoolObj} />
       </div>
     </div>
   );

@@ -1,11 +1,10 @@
 import { useState } from "react";
 import data from "./utils/poanimaDataset.json";
 import EpisodeWordsBarChart from "./components/EpisodeWordsBarChart/EpisodeWordsBarChart";
-import SeasonSchoolHeatmap from "./components/SeasonSchoolHeatmap/SeasonSchoolHeatmap";
-import SeasonTechniqueHeatmap from "./components/SeasonTechniqueHeatmap/SeasonTechniqueHeatmap";
 import TitleWordsRadialAnimated from "./components/TitleWordsRadial/TitleWordsRadialAnimated";
 import FlowerAnimation from "./components/FlowerAnimation/FlowerAnimation";
 import SchoolForce from "./components/SchoolForce/SchoolForce";
+import SeasonEpisodeHeatmaps from "./components/SeasonEpisodeHeatmaps/SeasonEpisodeHeatmaps";
 
 function App() {
   const [films, setFilms] = useState(data.filter((d) => d.season === 1));
@@ -24,6 +23,9 @@ function App() {
         Change Season: {season}
       </button>
       <div className="mb-20">
+        <SeasonEpisodeHeatmaps data={data} />
+      </div>
+      <div className="mb-20">
         <SchoolForce data={data} />
       </div>
       <div className="mb-20">
@@ -31,12 +33,6 @@ function App() {
       </div>
       <div className="mb-20">
         <TitleWordsRadialAnimated data={films} />
-      </div>
-      <div className="mb-20">
-        <SeasonTechniqueHeatmap data={data} />
-      </div>
-      <div className="mb-20">
-        <SeasonSchoolHeatmap data={data} />
       </div>
       <div className="">
         <EpisodeWordsBarChart data={data} />
