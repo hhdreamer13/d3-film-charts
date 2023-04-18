@@ -4,8 +4,10 @@ const ToggleButton = ({ initialValue = false, onChange }) => {
   const [isChecked, setIsChecked] = useState(initialValue);
 
   const handleClick = (value) => {
-    setIsChecked(value);
-    onChange(value);
+    if (isChecked !== value) {
+      setIsChecked(value);
+      onChange(value);
+    }
   };
 
   return (

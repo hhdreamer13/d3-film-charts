@@ -2,11 +2,29 @@ import React, { useEffect, useRef } from "react";
 import * as d3 from "d3";
 import _ from "lodash";
 import Legend from "../SeasonSchoolHeatmap/Legend";
-import schoColor from "../../utils/schoolColors.json";
-import technicolor from "../../utils/techniqueColors.json";
 
 const width = 600;
 const height = 450;
+
+const schoColor = [
+  { name: "La Poudrière", color: "#FF5733" },
+  { name: "EMCA", color: "#FFC300" },
+  { name: "ENSAD", color: "#DAF7A6" },
+  { name: "Les Gobelins", color: "#4C4CFF" },
+  { name: "Atelier de Sèvres", color: "#00CC99" },
+  { name: "Rubika", color: "#454d66" },
+  { name: "L'Atelier", color: "#B39CD0" },
+  { name: "Émile Cohl", color: "#75448B" },
+  { name: "ESAAT", color: "#DAD873" },
+  { name: "Georges Méliès", color: "#FF6D00" },
+  { name: "Ste Geneviève", color: "#8BC34A" },
+  { name: "LISAA", color: "#AD1457" },
+  { name: "Marie-Curie", color: "#0098C9" },
+  { name: "Pivaut", color: "#6200EA" },
+  { name: "Estienne", color: "#283593" },
+  { name: "EESAB", color: "#A6A6A6" },
+  { name: "ECV Bordeaux", color: "#391C77" },
+];
 
 const SchoolForce = ({ data }) => {
   const ref = useRef(null);
@@ -19,7 +37,6 @@ const SchoolForce = ({ data }) => {
 
   const schoolsNames = _.uniqBy(data, "school").map((film) => film.school);
   const schoolCounts = _.countBy(data, "school");
-  const techniques = _.uniqBy(data, "technique").map((film) => film.technique);
 
   const schoolObj = schoolsNames.map((school) => {
     return {
@@ -30,18 +47,6 @@ const SchoolForce = ({ data }) => {
   });
 
   schoolObj.sort((a, b) => b.count - a.count);
-
-  // Technique Objects
-  const techniquesCounts = _.countBy(data, "technique");
-  const techniquesObj = techniques.map((technique) => {
-    return {
-      name: technique,
-      count: techniquesCounts[technique] || 0,
-      color: technicolor.find((t) => t.name === technique).color,
-    };
-  });
-
-  techniquesObj.sort((a, b) => b.count - a.count);
 
   // Color Scale
   const colorScale = d3
@@ -68,15 +73,7 @@ const SchoolForce = ({ data }) => {
 
   const nodeFill = (d) => {
     const schoolNode = schools.find((school) => school.id === d.id);
-    if (schoolNode) {
-      return colorScale(schoolNode.title);
-    } else {
-      const filmNode = data.find((film) => `data-${film.id}` === d.id);
-      if (filmNode) {
-        const technique = filmNode.technique; // Assuming the technique is stored in the 'technique' property of each film object
-        return technicolor.find((tech) => tech.name === technique).color;
-      }
-    }
+    return schoolNode ? colorScale(schoolNode.title) : "#";
   };
   const nodeStroke = "#fff"; // node stroke color
   const nodeStrokeWidth = 1.5; // node stroke width, in pixels
@@ -100,7 +97,6 @@ const SchoolForce = ({ data }) => {
     );
 
     let nodeTitle = nodesData.map((d) => intern(d.title));
-
     if (nodeTitle === undefined) nodeTitle = (_, i) => N[i];
     const T = nodesData.map((d) => d.title);
     const G = nodesData.map((d) => intern(d.id));
@@ -184,28 +180,7 @@ const SchoolForce = ({ data }) => {
       .attr("fill", nodeFill)
       .call(drag(simulation));
 
-    // if (T) node.append("title").text(({ index: i }) => T[i]);
-    if (T) {
-      node.append("title").text(({ index: i }) => {
-        const currentTitle = T[i];
-        const currentNodeData = nodesData[i];
-        if (currentNodeData.group !== "school") {
-          const filmNode = data.find(
-            (film) => `data-${film.id}` === currentNodeData.id
-          );
-          if (filmNode) {
-            return `${currentTitle}
-Technique: ${filmNode.technique}`;
-          }
-        } else {
-          const schoolName = currentNodeData.title;
-          const filmCount = schoolCounts[schoolName] || 0;
-          return `${currentTitle}
-Nombre de films: ${filmCount}`;
-        }
-        return currentTitle;
-      });
-    }
+    if (T) node.append("title").text(({ index: i }) => T[i]);
 
     function intern(value) {
       return value !== null && typeof value === "object"
@@ -259,25 +234,10 @@ Nombre de films: ${filmCount}`;
   }, [data]);
 
   return (
-    <div className="flex flex-col">
-      <div className="flex">
-        <div ref={ref}></div>
-        <div className="mt-4">
-          <Legend obj={schoolObj} />
-        </div>
-      </div>
-      <div className="mt-8 flex">
-        {techniquesObj.map((item) => (
-          <div key={item.name} className="mx-2">
-            <span
-              className={"mr-1 inline-block h-3 w-3 rounded-xl"}
-              style={{
-                backgroundColor: item.color,
-              }}
-            ></span>
-            {item.name}
-          </div>
-        ))}
+    <div className="flex">
+      <div ref={ref}></div>
+      <div className="mt-1">
+        <Legend obj={schoolObj} />
       </div>
     </div>
   );

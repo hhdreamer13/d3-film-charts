@@ -67,6 +67,7 @@ const TitleWordsRadialAnimated = ({ data: filteredData }) => {
         .duration(150)
         .style("scale", "0.95")
         .style("stroke", "black")
+        .style("stroke-width", "2")
         .style("stroke-width", "2");
 
       tooltipRef.current.style.display = "inline-block";

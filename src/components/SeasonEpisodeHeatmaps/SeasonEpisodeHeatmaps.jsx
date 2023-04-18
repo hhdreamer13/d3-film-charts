@@ -1,49 +1,46 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 import * as d3 from "d3";
 import _, { throttle } from "lodash";
-import Legend from "../SeasonSchoolHeatmap/Legend";
+import LegendInteractive from "./LegendInteractive";
 import ToggleSwitch from "../ToggleSwitch";
+import schoColor from "../../utils/schoolColors.json";
+import technicolor from "../../utils/techniqueColors.json";
 
+// CONSTANTS
 const width = 600;
 const height = 450;
 const margin = { top: 5, right: 5, bottom: 20, left: 35 };
-const technicolor = [
-  { name: "Traditionnelle", color: "#1b0c41" },
-  { name: "Numérique", color: "#721a6e" },
-  { name: "Papiers découpés", color: "#c63d4d" },
-  { name: "Volume", color: "#f8890c" },
-  { name: "Variée", color: "#f1ef75" },
-];
-const schoColor = [
-  { name: "La Poudrière", color: "#FF5733" },
-  { name: "EMCA", color: "#FFC300" },
-  { name: "ENSAD", color: "#DAF7A6" },
-  { name: "Les Gobelins", color: "#4C4CFF" },
-  { name: "Atelier de Sèvres", color: "#00CC99" },
-  { name: "Rubika", color: "#454d66" },
-  { name: "L'Atelier", color: "#B39CD0" },
-  { name: "Émile Cohl", color: "#75448B" },
-  { name: "ESAAT", color: "#DAD873" },
-  { name: "Georges Méliès", color: "#FF6D00" },
-  { name: "Ste Geneviève", color: "#8BC34A" },
-  { name: "LISAA", color: "#AD1457" },
-  { name: "Marie-Curie", color: "#0098C9" },
-  { name: "Pivaut", color: "#6200EA" },
-  { name: "Estienne", color: "#283593" },
-  { name: "EESAB", color: "#A6A6A6" },
-  { name: "ECV Bordeaux", color: "#391C77" },
-];
 
 const SeasonEpisodeHeatmaps = ({ data }) => {
+  // References
   const svgRef = useRef(null);
   const xAxisRef = useRef(null);
   const yAxisRef = useRef(null);
   const tooltipRef = useRef(null);
 
-  // Data change
+  // States
   const [chartVar, setChartVar] = useState("school");
+  const [selectedSchool, setSelectedSchool] = useState(null);
+  const [selectedTechnique, setSelectedTechnique] = useState(null);
 
-  // get the data
+  // Click handlers
+  const handleSchoolLegendClick = (schoolName) => {
+    if (selectedSchool === schoolName) {
+      setSelectedSchool(null);
+    } else {
+      setSelectedSchool(schoolName);
+    }
+  };
+
+  const handleTechniqueLegendClick = (techniqueName) => {
+    if (selectedTechnique === techniqueName) {
+      setSelectedTechnique(null);
+    } else {
+      setSelectedTechnique(techniqueName);
+    }
+  };
+
+  // Get data
   const seasons = _.uniqBy(data, "season").map((film) => film.season);
   const episodes = _.uniqBy(data, "episode").map((film) => film.episode);
 
@@ -108,6 +105,9 @@ const SeasonEpisodeHeatmaps = ({ data }) => {
 
   const handleMouseOver = useCallback((event, d) => {
     d3.select(event.target).style("stroke", "black");
+    d3.select(event.target).style("stroke-width", 3);
+
+    tooltipRef.current.style.display = "inline-block";
     updateTooltip(event, d);
   }, []);
 
@@ -121,9 +121,11 @@ const SeasonEpisodeHeatmaps = ({ data }) => {
 
   const handleMouseLeave = useCallback(() => {
     d3.select(event.target).style("stroke", "none");
-    tooltipRef.current.style.opacity = 0;
+    d3.select(event.target).style("stroke-width", 0);
+    tooltipRef.current.style.display = "none";
   }, []);
 
+  // Draw the charts
   const draw = () => {
     if (svgRef.current) {
       // eslint-disable-next-line no-unused-vars
@@ -136,7 +138,7 @@ const SeasonEpisodeHeatmaps = ({ data }) => {
             const rect = enter
               .append("rect")
               // attributes to transition from
-              .attr("fill", "black")
+              .attr("fill", "none")
               .attr("opacity", 0);
 
             return rect;
@@ -169,11 +171,17 @@ const SeasonEpisodeHeatmaps = ({ data }) => {
         .duration(1500)
         .ease(d3.easeQuadInOut)
         .attr("opacity", 1)
-        .attr("fill", (d) =>
-          chartVar === "technique"
-            ? techniquesObj.find((item) => item.name === d.technique).color
-            : schoolsObj.find((item) => item.name === d.school).color
-        )
+        .attr("fill", (d) => {
+          if (chartVar === "technique") {
+            return selectedTechnique && d.technique !== selectedTechnique
+              ? "#FAF7FF"
+              : techniquesObj.find((item) => item.name === d.technique).color;
+          } else {
+            return selectedSchool && d.school !== selectedSchool
+              ? "#FAF7FF"
+              : schoolsObj.find((item) => item.name === d.school).color;
+          }
+        })
         .style("stroke-width", 4)
         .style("stroke", "none");
     }
@@ -213,7 +221,7 @@ const SeasonEpisodeHeatmaps = ({ data }) => {
   });
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => draw(), [data, chartVar]);
+  useEffect(() => draw(), [data, chartVar, selectedSchool, selectedTechnique]);
 
   return (
     <div>
@@ -221,8 +229,18 @@ const SeasonEpisodeHeatmaps = ({ data }) => {
         <ToggleSwitch
           checked={chartVar === "school"}
           onChange={() => {
-            setChartVar(chartVar === "school" ? "technique" : "school");
+            if (chartVar === "school") {
+              setChartVar("technique");
+              setSelectedSchool(null);
+            } else {
+              setChartVar("school");
+              setSelectedTechnique(null);
+            }
           }}
+          // onChange={() => {
+          //   setChartVar(chartVar === "school" ? "technique" : "school");
+
+          // }}
         />
       </div>
       <div className="flex">
@@ -240,19 +258,29 @@ const SeasonEpisodeHeatmaps = ({ data }) => {
         <div id="legends-container" className="relative w-40">
           <div
             className={
-              "absolute z-0 transition-all duration-1000 ease-in-out " +
-              `${chartVar === "technique" ? "opacity-100" : "opacity-0"}`
+              "absolute z-0 ml-2 transition-all duration-1000 ease-in-out " +
+              `${chartVar === "technique" ? "opacity-100" : "opacity-0"} 
+              ${chartVar === "school" ? "pointer-events-none" : ""}
+              `
             }
           >
-            <Legend obj={techniquesObj} />
+            <LegendInteractive
+              obj={techniquesObj}
+              onLegendClick={handleTechniqueLegendClick}
+            />
           </div>
           <div
             className={
-              "absolute z-0 transition-all duration-1000 ease-in-out " +
-              `${chartVar === "school" ? "opacity-100" : "opacity-0"}`
+              "absolute z-0 ml-2 transition-all duration-1000 ease-in-out " +
+              `${chartVar === "school" ? "opacity-100" : "opacity-0"}
+              ${chartVar === "technique" ? "pointer-events-none" : ""}
+              `
             }
           >
-            <Legend obj={schoolsObj} />
+            <LegendInteractive
+              obj={schoolsObj}
+              onLegendClick={handleSchoolLegendClick}
+            />
           </div>
         </div>
       </div>
