@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 import { useEffect, useRef, useCallback } from "react";
-import _, { throttle } from "lodash";
+import _ from "lodash";
 import schoolFlowerTooltip from "./schoolFlowerTooltip";
 
 const width = 800;
@@ -182,7 +182,7 @@ const FlowerAnimation = ({ data }) => {
               )
               .attr("r", circleRadius)
               .attr("fill", (d) => d.color)
-              .attr("fill-opacity", 0.5)
+              .attr("fill-opacity", 0.4)
               .attr("stroke", "none")
               .attr("filter", "url(#blur)"); // apply the blur filter
 

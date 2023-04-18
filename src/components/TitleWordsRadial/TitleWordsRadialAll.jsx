@@ -1,6 +1,6 @@
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 import * as d3 from "d3";
-import { throttle } from "lodash";
+import _, { throttle } from "lodash";
 import d3ColorExtractor from "../../utils/d3ColorExtractor";
 import drawTitleWordsRadial from "./drawTitleWordsRadial";
 import radialTooltip from "./radialTooltip";
@@ -18,10 +18,12 @@ const techniques = [
   "Variée",
 ];
 
-const TitleWordsRadialAnimated = ({ data: filteredData }) => {
+const TitleWordsRadialAll = ({ data: filteredData }) => {
   const svgRef = useRef(null);
   const radialBarRef = useRef(null);
   const tooltipRef = useRef(null);
+
+  const [data, setData] = useState(filteredData);
 
   // Color array based on techniques
   const colorRange = d3ColorExtractor(d3.interpolateInferno, 5);
@@ -34,8 +36,8 @@ const TitleWordsRadialAnimated = ({ data: filteredData }) => {
   });
 
   // Create Domains
-  const titles = filteredData.map((d) => d.title);
-  const words = filteredData.map((d) => d.words);
+  const titles = data.map((d) => d.title);
+  const words = data.map((d) => d.words);
   const wordsExtent = [0, Math.max(...words) + 50];
 
   // Create Scales
@@ -65,9 +67,8 @@ const TitleWordsRadialAnimated = ({ data: filteredData }) => {
       d3.select(event.target)
         .transition()
         .duration(150)
-        .style("scale", "0.95")
+        .style("scale", ".97")
         .style("stroke", "black")
-        .style("stroke-width", "2")
         .style("stroke-width", "2");
 
       tooltipRef.current.style.display = "inline-block";
@@ -101,7 +102,7 @@ const TitleWordsRadialAnimated = ({ data: filteredData }) => {
       drawTitleWordsRadial(
         svgRef,
         radialBarRef,
-        filteredData,
+        data,
         xScale,
         yScale,
         techniColor,
@@ -113,7 +114,7 @@ const TitleWordsRadialAnimated = ({ data: filteredData }) => {
         handleMouseLeave
       ),
     [
-      filteredData,
+      data,
       handleMouseOver,
       handleMouseMove,
       handleMouseLeave,
@@ -124,7 +125,27 @@ const TitleWordsRadialAnimated = ({ data: filteredData }) => {
   );
 
   return (
-    <div className="flex">
+    <div className="flex flex-col">
+      <div className="my-10 flex w-full justify-around">
+        <button
+          onClick={() => setData(_.sortBy(data, (d) => d.words))}
+          className="btn-outline btn-sm btn normal-case"
+        >
+          Ascending
+        </button>
+        <button
+          onClick={() => setData(filteredData)}
+          className="btn-outline btn-sm btn normal-case"
+        >
+          Reset
+        </button>
+        <button
+          onClick={() => setData(_.sortBy(data, (d) => d.words).reverse())}
+          className="btn-outline btn-sm btn normal-case"
+        >
+          Descending
+        </button>
+      </div>
       <svg ref={svgRef} width={width} height={height}>
         <g
           ref={radialBarRef}
@@ -152,4 +173,4 @@ const TitleWordsRadialAnimated = ({ data: filteredData }) => {
   );
 };
 
-export default TitleWordsRadialAnimated;
+export default TitleWordsRadialAll;

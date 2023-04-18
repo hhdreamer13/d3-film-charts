@@ -1,7 +1,6 @@
 import * as d3 from "d3";
-import drawRadialAxisGuides from "./drawRadialAxis";
 
-const drawTitleWordsRadial = (
+const drawTitleWordsRadialSeason = (
   svgRef,
   radialBarRef,
   filteredData,
@@ -28,7 +27,7 @@ const drawTitleWordsRadial = (
     d3.select(radialBarRef.current)
       .selectAll("path")
       .attr("class", "radial-bar")
-      .data(filteredData, (d) => d.id)
+      .data(filteredData, (d, i) => i)
       .join(
         (enter) => {
           const enterRadialBar = enter
@@ -108,22 +107,44 @@ const drawTitleWordsRadial = (
       d3.select(svgRef.current)
         .append("text")
         .attr("class", "static-center-text")
+        .attr("text-anchor", "end")
+        .attr("alignment-baseline", "middle")
+        .style("font-size", "15px")
+        .attr("opacity", "1")
+        .attr("transform", `translate(${width / 2 + 10},${height / 2})`)
+        .text("Saison :");
+    }
+
+    // Dynamic center text (number)
+    const dynamicCenterText = d3
+      .select(svgRef.current)
+      .select(".dynamic-center-text");
+
+    if (!dynamicCenterText.empty()) {
+      dynamicCenterText
+        .transition()
+        .duration(500)
+        .attr("opacity", "0")
+        .attr("transform", `translate(${width / 2 + 15},${height / 2 + 20})`)
+        .on("end", () => {
+          dynamicCenterText
+            .text(filteredData[0].season)
+            .transition()
+            .duration(500)
+            .attr("opacity", "1")
+            .attr("transform", `translate(${width / 2 + 15},${height / 2})`);
+        });
+    } else {
+      d3.select(svgRef.current)
+        .append("text")
+        .attr("class", "dynamic-center-text")
         .attr("text-anchor", "start")
         .attr("alignment-baseline", "middle")
         .style("font-size", "15px")
         .attr("opacity", "1")
-        .attr("transform", `translate(${width / 2 - 60},${height / 2})`)
-        .text("Tous les episodes");
+        .attr("transform", `translate(${width / 2 + 15},${height / 2})`)
+        .text(filteredData[0].season);
     }
-
-    const tickValues = yScale.ticks(5); // Adjust the number of ticks as needed
-    drawRadialAxisGuides(
-      d3.select(svgRef.current),
-      width,
-      height,
-      yScale,
-      tickValues
-    );
 
     // Text above bars
     const textArc = d3
@@ -168,12 +189,13 @@ const drawTitleWordsRadial = (
         const angle =
           Math.atan2(textArc.centroid(d)[1], textArc.centroid(d)[0]) *
           (180 / Math.PI);
-        const rotatedAngle = angle < 90 && angle > -90 ? angle : angle;
+        const rotatedAngle =
+          angle < 90 && angle > -90 ? angle + 90 : angle + 90;
         return `rotate(${rotatedAngle},${textArc.centroid(d)[0]},${
           textArc.centroid(d)[1]
         })`;
-      });
-    // .text((d) => `${d.id}`)
+      })
+      .text((d) => `E ${d.episode}`);
 
     // Re-calculate the center of each bar
     titlesGroup.selectAll("text").each(function (d) {
@@ -192,4 +214,4 @@ const drawTitleWordsRadial = (
   }
 };
 
-export default drawTitleWordsRadial;
+export default drawTitleWordsRadialSeason;
